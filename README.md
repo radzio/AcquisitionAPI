@@ -38,8 +38,108 @@ Based on Universally Unique IDentifier ([rfc4122](https://tools.ietf.org/html/rf
 
 **Example SUID:** `123e4567-e89b-12d3-a456-426655440000`
 
+**IMPORTANT:** You should start the SUID with `d` for DIY projects but it's not mandatory.
 
-## JSON Payload
+## MQTT
+
+(TBD)
+
+## REST API - ROUGUE variant
+
+This variant is to be used in DIY devices, prototypes and sensor with poor accuracy. No authentication is used, using `SUID` for the first time will register the device.
+
+### Reading request
+
+`POST /rogue_sensors/[SUID]/readings`
+
+**Payload (application/json):**
+
+See JSON Reading Payload section.
+
+**Response:**
+
+Status 200, empty response
+
+## REST API - SECURE variant
+
+This protocol is to be used by certified devices and readings should be considered accurate therefore sensor identity must be validated.
+
+SSL/TLS Secure transport is required.
+
+#### Authentication
+
+Sensor will receive `SECRET` during registration.
+For secure identification of the device `HMAC` will be used to send hash with every payload. The `SECRET` length is 256 bytes.
+
+### Registration 
+
+Registration is automatic and will be performed during first request (or next if failed).
+
+Desired scenario:
+
+- Sensor is powered and connected to the internet.
+- Device should use DHCP and start data acquisition.
+- User goes to `sensor.opensmog.org`
+- Enters the SUID (printed on package as well as on the device sticker). 
+- User enters the street address (or lat/lon) of sensor location.
+- Device is ready.
+
+### Registration request
+
+`PUT /sensors/[SUID]`
+
+**Payload (application/json):**
+
+Example:
+
+```json
+{
+	"manufacturer": "ACME INC",
+	"model": "X9000",
+	"latitude": 1.0,
+	"longitude": 1.0,
+	"elevation": 8000.0
+}
+```
+
+**latitude, longitude, elevation** - optional.
+
+This may contain more meta-data about the sensor. TBD.
+
+**Response (text/plain):**
+
+256-bit `SECRET`.
+
+Status 200
+  
+```
+F9954C7A7A668E16A6572B4C49DA4
+```
+
+### Reading request
+
+`POST /sensors/[SUID]/readings`
+
+**Headers:**
+
+`Authorization: OpenSmogHash [HASH]`
+
+If no such header is sent and the `SUID` is not registered via **SECURE** API, the server should assume **ROGUE** API variant.
+If no such header is sent and the `SUID` is registered via **SECURE** API, the server should respond with 403 Forbidden.
+If the header is sent and the `SUID` is not registered via **SECURE** API, the server should ignore the header.
+If `HASH` is not correct, the server should respond with 401 Unauthorized. 
+
+**WARNING:** If device memory is erased and lost the Secret it should register again and will be treated as a new device. 
+
+**Payload (application/json):**
+
+See JSON Reading Payload section.
+
+**Response:**
+
+Status 200, empty response
+
+## JSON Reading Payload
 
 Example:
 
@@ -87,99 +187,6 @@ Each **observation** shall be independent of others.
 - `PRES` - Atmospheric Pressure (unit: **hPa**)
 
 All Float values.
-
-## MQTT
-
-(TBD)
-
-## REST API - ROUGUE variant
-
-This variant is to be used in DIY devices, prototypes and sensor with poor accuracy. No authentication is used, using `SUID` for the first time will register the device.
-
-### Reading request
-
-`POST /sensors/[SUID]/readings`
-
-**Payload:**
-
-See JSON Payload section.
-
-**Response:**
-
-Status 200, empty response
-
-## REST API - SECURE variant
-
-This protocol is to be used by certified devices and readings should be considered accurate therefore sensor identity must be validated.
-
-SSL/TLS Secure transport is required.
-
-#### Authentication
-
-Sensor will receive `SECRET` during registration.
-For secure identification of the device `HMAC` will be used to send hash with every payload. The `SECRET` length is 256 bytes.
-
-### Registration 
-
-Registration is automatic and will be performed during first request (or next if failed).
-
-Desired scenario:
-
-- Sensor is powered and connected to the internet.
-- Device should use DHCP and start data acquisition.
-- User goes to `sensor.opensmog.org`
-- Enters the SUID (printed on package as well as on the device sticker). 
-- User enters the street address (or lat/lon) of sensor location.
-- Device is ready.
-
-### Registration request
-
-`PUT /sensors/[SUID]`
-
-**Payload:**
-
-Example:
-```json
-{
-	"manufacturer": "ACME INC",
-	"model": "X9000",
-	...
-}
-```
-
-This may contain more meta-data about the sensor. TBD.
-
-**Response:**
-
-256-bit `SECRET`.
-
-Status 200, `text/plain` 
-```
-F9954C7A7A668E16A6572B4C49DA4
-```
-
-### Reading request
-
-`POST /sensors/[SUID]/readings`
-
-**Headers:**
-
-`Authorization: OpenSmogHash [HASH]`
-
-If no such header is sent and the `SUID` is not registered via **SECURE** API, the server should assume **ROGUE** API variant.
-If no such header is sent and the `SUID` is registered via **SECURE** API, the server should respond with 403 Forbidden.
-If the header is sent and the `SUID` is not registered via **SECURE** API, the server should ignore the header.
-If `HASH` is not correct, the server should respond with 401 Unauthorized. 
-
-**WARNING:** If device is reflashed and forgot the `SECRET` it should provide a new `SUID`.
-
-**Payload:**
-
-See JSON Payload section.
-
-**Response:**
-
-Status 200, empty response
 
 ## OpenSmogHash (HMAC)
 
