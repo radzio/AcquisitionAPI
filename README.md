@@ -96,15 +96,21 @@ Example:
 {
 	"manufacturer": "ACME INC",
 	"model": "X9000",
-	"latitude": 1.0,
-	"longitude": 1.0,
-	"elevation": 8000.0
+	"location" : {
+		"latitude": 1.0,
+		"longitude": 1.0,
+		"elevation": 8000.0
+	}
 }
 ```
 
-**latitude, longitude, elevation** - optional.
+**location** - this parameter is optional.
 
-This may contain more meta-data about the sensor. TBD.
+**latitude, longitude**  - a geographical coordinates using the [WGS 84](http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html) reference frame.
+
+**elevation** - in meters. Positive values indicate altitudes above sea level. Negative values indicate altitudes below sea level.
+
+This section may contain more meta-data about the sensor. TBD.
 
 **Response (text/plain):**
 
