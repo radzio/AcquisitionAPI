@@ -50,7 +50,7 @@ This variant is to be used in DIY devices, prototypes and sensor with poor accur
 
 ### Reading request
 
-`POST /rogue_sensors/[SUID]/readings`
+`POST /rogue/v1/sensors/[SUID]/readings`
 
 **Payload (application/json):**
 
@@ -86,7 +86,7 @@ Desired scenario:
 
 ### Registration request
 
-`PUT /sensors/[SUID]`
+`PUT /v1/sensors/[SUID]`
 
 **Payload (application/json):**
 
@@ -104,11 +104,11 @@ Example:
 }
 ```
 
-**location** - this parameter is optional.
+**location** (object) -  this parameter is optional.
 
-**latitude, longitude**  - a geographical coordinates using the [WGS 84](http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html) reference frame.
+**latitude, longitude** (float) - a geographical coordinates using the [WGS 84](http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html) reference frame.
 
-**elevation** - in meters. Positive values indicate altitudes above sea level. Negative values indicate altitudes below sea level.
+**elevation** (float) - in meters. Positive values indicate altitudes above sea level. Negative values indicate altitudes below sea level.
 
 This section may contain more meta-data about the sensor. TBD.
 
@@ -124,7 +124,7 @@ F9954C7A7A668E16A6572B4C49DA4
 
 ### Reading request
 
-`POST /sensors/[SUID]/readings`
+`POST /v1/sensors/[SUID]/readings`
 
 **Headers:**
 
@@ -177,9 +177,9 @@ Each **observation** shall be independent of others.
 
 **timestamp** - Unix Epoch Time GMT+0000
 
-**readings** - Object containing at least one association between **Reading type** and its value at **timestamp**
+**readings** - Object containing at least one association between **Reading type** and its value at **timestamp**.
 
-### Reading types 
+### Reading types and units
 
 - `CO` – Carbon Monoxide (unit: **mg/m³**)
 - `PB` – Lead (unit: **µg/m³**)
@@ -192,7 +192,7 @@ Each **observation** shall be independent of others.
 - `HUM` – Humidity (unit: **%**)
 - `PRES` - Atmospheric Pressure (unit: **hPa**)
 
-All Float values.
+All float values.
 
 ## OpenSmogHash (HMAC)
 
