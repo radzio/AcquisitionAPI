@@ -38,56 +38,6 @@ Based on Universally Unique IDentifier ([rfc4122](https://tools.ietf.org/html/rf
 
 **Example SUID:** `123e4567-e89b-12d3-a456-426655440000`
 
-
-## JSON Payload
-
-Example:
-
-```json
-[
-	{
-		"timestamp": 1485778030,
-		"readings": {
-			"PM2_5": 201.1,
-			"PM10": 102.0,
-			"TEMP": 12.7
-		}
-	},
-	{
-		"timestamp": 1485778031,
-		"readings": {
-			"PM2_5": 202.1,
-			"PM10": 101.0
-		}
-	}
-]
-```
-
-Payload shall be an array of at least one **observation**. 
-Clients may choose to send one observation per request or to send them in bulk. 
-Each **observation** shall be independent of others. 
-
-**observation** - Object containing a **timestamp** and **readings**
-
-**timestamp** - Unix Epoch Time GMT+0000
-
-**readings** - Object containing at least one association between **Reading type** and its value at **timestamp**
-
-### Reading types 
-
-- `CO` – Carbon Monoxide (unit: **mg/m³**)
-- `PB` – Lead (unit: **µg/m³**)
-- `NO2` – Nitrogen Dioxide (unit: **µg/m³**)
-- `O3` – Ozone (unit: **µg/m³**)
-- `PM10` – PM10 (unit: **µg/m³**)
-- `PM2_5` – PM2.5 (unit: **µg/m³**)
-- `SO2` – Sulfur Dioxide (unit: **µg/m³**)
-- `TEMP` – Temperature (unit: **Celsius**)
-- `HUM` – Humidity (unit: **%**)
-- `PRES` - Atmospheric Pressure (unit: **hPa**)
-
-All Float values.
-
 ## MQTT
 
 (TBD)
@@ -98,11 +48,11 @@ This variant is to be used in DIY devices, prototypes and sensor with poor accur
 
 ### Reading request
 
-`POST /sensors/[SUID]/readings`
+`POST /rogue/v1/sensors/[SUID]/readings`
 
-**Payload:**
+**Payload (application/json):**
 
-See JSON Payload section.
+See JSON Reading Payload section.
 
 **Response:**
 
@@ -134,33 +84,45 @@ Desired scenario:
 
 ### Registration request
 
-`PUT /sensors/[SUID]`
+`PUT /v1/sensors/[SUID]`
 
-**Payload:**
+**Payload (application/json):**
 
 Example:
+
 ```json
 {
 	"manufacturer": "ACME INC",
 	"model": "X9000",
-	...
+	"location" : {
+		"latitude": 1.0,
+		"longitude": 1.0,
+		"elevation": 8000.0
+	}
 }
 ```
 
-This may contain more meta-data about the sensor. TBD.
+**location** (object) -  this parameter is optional.
 
-**Response:**
+**latitude, longitude** (float) - a geographical coordinates using the [WGS 84](http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html) reference frame.
+
+**elevation** (float) - in meters. Positive values indicate altitudes above sea level. Negative values indicate altitudes below sea level.
+
+This section may contain more meta-data about the sensor. TBD.
+
+**Response (text/plain):**
 
 256-bit `SECRET`.
 
-Status 200, `text/plain` 
+Status 200
+  
 ```
 F9954C7A7A668E16A6572B4C49DA4
 ```
 
 ### Reading request
 
-`POST /sensors/[SUID]/readings`
+`POST /v1/sensors/[SUID]/readings`
 
 **Headers:**
 
@@ -171,15 +133,64 @@ If no such header is sent and the `SUID` is registered via **SECURE** API, the s
 If the header is sent and the `SUID` is not registered via **SECURE** API, the server should ignore the header.
 If `HASH` is not correct, the server should respond with 401 Unauthorized. 
 
-**WARNING:** If device is reflashed and forgot the `SECRET` it should provide a new `SUID`.
+**WARNING:** If device memory is erased and lost the Secret it should register again and will be treated as a new device. 
 
-**Payload:**
+**Payload (application/json):**
 
-See JSON Payload section.
+See JSON Reading Payload section.
 
 **Response:**
 
 Status 200, empty response
+
+## JSON Reading Payload
+
+Example:
+
+```json
+[
+	{
+		"timestamp": 1485778030,
+		"readings": {
+			"PM2_5": 201.1,
+			"PM10": 102.0,
+			"TEMP": 12.7
+		}
+	},
+	{
+		"timestamp": 1485778031,
+		"readings": {
+			"PM2_5": 202.1,
+			"PM10": 101.0
+		}
+	}
+]
+```
+
+Payload shall be an array of at least one **observation**. 
+Clients may choose to send one observation per request or to send them in bulk. 
+Each **observation** shall be independent of others. 
+
+**observation** - Object containing a **timestamp** and **readings**
+
+**timestamp** - Unix Epoch Time GMT+0000
+
+**readings** - Object containing at least one association between **Reading type** and its value at **timestamp**.
+
+### Reading types and units
+
+- `CO` – Carbon Monoxide (unit: **mg/m³**)
+- `PB` – Lead (unit: **µg/m³**)
+- `NO2` – Nitrogen Dioxide (unit: **µg/m³**)
+- `O3` – Ozone (unit: **µg/m³**)
+- `PM10` – PM10 (unit: **µg/m³**)
+- `PM2_5` – PM2.5 (unit: **µg/m³**)
+- `SO2` – Sulfur Dioxide (unit: **µg/m³**)
+- `TEMP` – Temperature (unit: **Celsius**)
+- `HUM` – Humidity (unit: **%**)
+- `PRES` - Atmospheric Pressure (unit: **hPa**)
+
+All float values.
 
 ## OpenSmogHash (HMAC)
 
