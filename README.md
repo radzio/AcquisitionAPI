@@ -40,7 +40,59 @@ Based on Universally Unique IDentifier ([rfc4122](https://tools.ietf.org/html/rf
 
 ## MQTT
 
-(TBD)
+### Security
+
+By default MQTT relies on TCP as transport protocol. In order to encrypt whole communication MQTT broket and clients can use TLC instead of plain TCP. Port 8883 is standardized for a secured MQTT connection. The standardized name at IANA is “secure-mqtt” and port 8883 is exclusively reserved for MQTT over TLS.
+
+### Authentication
+
+An MQTT broker can be configured to require client authentication using a valid username and password  before a connection is permitted.
+
+The username and password combination is transmitted in clear text, and is not secure without some form of transport encryption this is why it is recommended to use TLS instead TCP.
+
+However using username and passwords does provide an easy way of restricting access to a broker.
+
+The username used for authentication can also used in restricting access to topics.
+
+In OpenSmog case **SUID** can be used as username and generated secret **HASH** can be used as password.
+
+### Device registration
+
+REST API should be used for device registration.
+
+###  Reading request
+
+#### MQTT  API - ROUGUE variant
+
+When device does not provide any username and password during connecting to MQTT broker it can push messages only to *rouge* topic.
+
+**Topic name:**
+
+`/rogue/v1/sensors/[SUID]/readings`
+
+**Payload (application/json):**
+
+See JSON Reading Payload section.
+
+#### MQTT  API - SECURE variant
+
+When device provided valid username and password it can push messages only to topic with it's **SUID**.
+
+**Topic name:**
+
+`/v1/sensors/[SUID]/readings`
+
+**Payload (application/json):**
+
+See JSON Reading Payload section.
+
+### MQTT API - QOS
+
+TBA
+
+### MQTT API  - Last will and Testament
+
+TBA
 
 ## REST API - ROUGUE variant
 
@@ -115,7 +167,7 @@ This section may contain more meta-data about the sensor. TBD.
 256-bit `SECRET`.
 
 Status 200
-  
+
 ```
 F9954C7A7A668E16A6572B4C49DA4
 ```
