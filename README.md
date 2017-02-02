@@ -76,7 +76,7 @@ See JSON Reading Payload section.
 
 #### MQTT  API - SECURE variant
 
-When device provided valid username and password it can push messages only to topic with it's **SUID**.
+When device provides valid username and password it can push messages only to topic with it's **SUID**.
 
 **Topic name:**
 
