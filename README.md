@@ -38,8 +38,6 @@ Based on Universally Unique IDentifier ([rfc4122](https://tools.ietf.org/html/rf
 
 **Example SUID:** `123e4567-e89b-12d3-a456-426655440000`
 
-**IMPORTANT:** You should start the SUID with `d` for DIY projects but it's not mandatory.
-
 ## MQTT
 
 (TBD)
